@@ -1,0 +1,1019 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AmForm</title>
+    <style>
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8f8f8;
+            --text-primary: #000000;
+            --text-secondary: #4a4a4a;
+            --border-color: #e0e0e0;
+            --input-bg: #fafafa;
+            --accent: #333333;
+            --accent-dark: #555555;
+        }
+
+        body.dark-mode {
+            --bg-primary: #1a1a1a;
+            --bg-secondary: #2a2a2a;
+            --text-primary: #ffffff;
+            --text-secondary: #d0d0d0;
+            --border-color: #3a3a3a;
+            --input-bg: #252525;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+
+        .app-container {
+            display: flex;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Sidebar Navigation */
+        .sidebar {
+            width: 250px;
+            background: var(--bg-secondary);
+            padding: 30px 0;
+            display: flex;
+            flex-direction: column;
+            border-right: 2px solid var(--border-color);
+            transition: all 0.3s ease;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        .sidebar-header {
+            padding: 0 30px;
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        .sidebar-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--accent);
+            transition: color 0.3s ease;
+        }
+
+        body.dark-mode .sidebar-title {
+            color: #ffffff;
+        }
+
+        .nav-items {
+            flex: 1;
+        }
+
+        .nav-item {
+            padding: 14px 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent;
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .nav-item:hover {
+            background: var(--bg-primary);
+            color: var(--accent);
+            transform: translateX(4px);
+            opacity: 0.85;
+        }
+
+        .nav-item:active {
+            transform: translateX(2px) scale(0.98);
+        }
+
+        .nav-item.active {
+            background: #e8e8e8;
+            color: var(--text-primary);
+            border-left-color: var(--accent-dark);
+            transition: all 0.3s ease;
+        }
+
+        body.dark-mode .nav-item.active {
+            background: var(--accent);
+            color: white;
+        }
+
+        .nav-icon {
+            font-size: 18px;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .nav-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            transition: filter 0.3s ease;
+        }
+
+        body.dark-mode .nav-icon img {
+            filter: invert(1) brightness(0.9);
+        }
+
+        .sidebar-footer {
+            padding: 0 30px;
+            border-top: 2px solid var(--border-color);
+            padding-top: 20px;
+        }
+
+        /* Toggle Container */
+        .toggle-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            padding: 12px;
+            background: var(--bg-primary);
+            border-radius: 10px;
+        }
+
+        .toggle-icon {
+            font-size: 12px;
+            color: var(--text-secondary);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 28px;
+            min-width: 30px;
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 28px;
+            margin-top: 12px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #d0d0d0;
+            transition: 0.3s;
+            border-radius: 28px;
+        }
+
+        body.dark-mode .toggle-slider {
+            background-color: #4a4a4a;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 22px;
+            width: 22px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: 0.3s;
+            border-radius: 50%;
+        }
+
+        body.dark-mode .toggle-slider:before {
+            background-color: #e0e0e0;
+        }
+
+        input:checked + .toggle-slider {
+            background-color: var(--accent-dark);
+        }
+
+        input:checked + .toggle-slider:before {
+            transform: translateX(22px);
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+        }
+
+        .page {
+            width: 100%;
+            min-height: 100%;
+            padding: 60px;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .page.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        /* Home Page */
+        .home-content {
+            text-align: center;
+            max-width: 600px;
+        }
+
+        .home-content h1 {
+            font-size: 52px;
+            margin-bottom: 20px;
+            color: var(--accent);
+            transition: color 0.3s ease;
+        }
+
+        body.dark-mode .home-content h1 {
+            color: #ffffff;
+        }
+
+        .home-content p {
+            font-size: 18px;
+            color: var(--text-secondary);
+            margin-bottom: 40px;
+            line-height: 1.6;
+        }
+
+        .btn-primary {
+            padding: 16px 40px;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 15px 35px rgba(51, 51, 51, 0.25);
+            background: var(--accent-dark);
+            opacity: 0.95;
+        }
+
+        .btn-primary:active {
+            transform: translateY(-1px) scale(0.98);
+        }
+
+        /* Form Page */
+        .form-container {
+            width: 100%;
+            max-width: 600px;
+        }
+
+        .form-container h1 {
+            font-size: 36px;
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 28px;
+            transition: all 0.3s ease;
+        }
+
+        .form-group:hover {
+            opacity: 0.95;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+            font-size: 14px;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+            text-transform: uppercase;
+            opacity: 0.9;
+            transition: all 0.3s ease;
+        }
+
+        .form-group:hover label {
+            opacity: 1;
+            color: var(--accent);
+            transform: translateX(2px);
+        }
+
+        body.dark-mode .form-group:hover label {
+            color: #e0e0e0;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="password"],
+        input[type="number"],
+        input[type="date"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 16px 18px;
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            font-size: 15px;
+            background: var(--input-bg);
+            color: var(--text-primary);
+            transition: all 0.3s ease;
+            font-family: inherit;
+            color-scheme: light;
+        }
+
+        body.dark-mode input[type="text"],
+        body.dark-mode input[type="email"],
+        body.dark-mode input[type="password"],
+        body.dark-mode input[type="number"],
+        body.dark-mode input[type="date"],
+        body.dark-mode textarea,
+        body.dark-mode select {
+            color: #ffffff;
+        }
+
+        body.dark-mode input::placeholder,
+        body.dark-mode textarea::placeholder {
+            color: #888888;
+        }
+
+        input::placeholder,
+        textarea::placeholder {
+            color: #999999;
+        }
+
+        body.dark-mode input[type="date"] {
+            color-scheme: dark;
+        }
+
+        input[type="text"]:focus,
+        input[type="email"]:focus,
+        input[type="password"]:focus,
+        input[type="number"]:focus,
+        input[type="date"]:focus,
+        textarea:focus,
+        select:focus {
+            outline: none;
+            border-color: var(--accent);
+            background: var(--bg-primary);
+            transform: translateY(-2px) scale(1.01);
+            box-shadow: 0 8px 20px rgba(51, 51, 51, 0.15);
+            opacity: 0.95;
+        }
+
+        input[type="text"]:hover,
+        input[type="email"]:hover,
+        input[type="password"]:hover,
+        input[type="number"]:hover,
+        input[type="date"]:hover,
+        textarea:hover,
+        select:hover {
+            border-color: var(--text-secondary);
+            transform: translateY(-1px);
+            opacity: 0.9;
+        }
+
+        input[type="text"]:active,
+        input[type="email"]:active,
+        input[type="password"]:active,
+        input[type="number"]:active,
+        input[type="date"]:active,
+        textarea:active,
+        select:active {
+            transform: translateY(0) scale(0.99);
+        }
+
+        input[type="number"]::-webkit-outer-spin-button,
+        input[type="number"]::-webkit-inner-spin-button {
+            opacity: 1;
+        }
+
+        body.dark-mode input[type="number"]::-webkit-outer-spin-button,
+        body.dark-mode input[type="number"]::-webkit-inner-spin-button {
+            filter: invert(1) brightness(1.2);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        .checkbox-group,
+        .radio-group {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        input[type="checkbox"],
+        input[type="radio"] {
+            margin-right: 12px;
+            cursor: pointer;
+            accent-color: var(--accent);
+            width: 18px;
+            height: 18px;
+            transition: accent-color 0.3s ease;
+        }
+
+        body.dark-mode input[type="checkbox"],
+        body.dark-mode input[type="radio"] {
+            accent-color: #666666;
+        }
+
+        .checkbox-label,
+        .radio-label {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            color: var(--text-secondary);
+            font-size: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .checkbox-label:hover,
+        .radio-label:hover {
+            color: var(--text-primary);
+            transform: translateX(4px);
+            opacity: 0.9;
+        }
+
+        .checkbox-label:active,
+        .radio-label:active {
+            transform: translateX(2px) scale(0.98);
+        }
+
+        .form-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 40px;
+        }
+
+        .btn-submit {
+            flex: 1;
+            padding: 16px;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 15px 35px rgba(51, 51, 51, 0.25);
+            background: var(--accent-dark);
+            opacity: 0.95;
+        }
+
+        .btn-submit:active {
+            transform: translateY(-1px) scale(0.98);
+        }
+
+        .btn-reset {
+            flex: 1;
+            padding: 16px;
+            background: transparent;
+            color: var(--text-primary);
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .btn-reset:hover {
+            border-color: var(--accent);
+            background: transparent;
+            color: var(--accent);
+            transform: translateY(-2px) scale(1.01);
+            opacity: 0.95;
+        }
+
+        .btn-reset:active {
+            transform: translateY(0) scale(0.98);
+        }
+
+        /* Stats Page */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            width: 100%;
+            max-width: 1000px;
+        }
+
+        .stat-card {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .stat-card:hover {
+            border-color: var(--text-primary);
+            transform: translateY(-8px) scale(1.02);
+            opacity: 0.95;
+        }
+
+        .stat-number {
+            font-size: 48px;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 10px;
+            transition: color 0.3s ease;
+        }
+
+        body.dark-mode .stat-number {
+            color: #ffffff;
+        }
+
+        .stat-label {
+            font-size: 16px;
+            color: var(--text-secondary);
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+
+        /* Gallery Page */
+        .gallery-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            width: 100%;
+            max-width: 1000px;
+        }
+
+        .gallery-item {
+            aspect-ratio: 1;
+            background: linear-gradient(135deg, #555555 0%, #333333 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: filter 0.3s ease;
+        }
+
+        body.dark-mode .gallery-item img {
+            filter: brightness(0.85);
+        }
+
+        .gallery-item:hover {
+            transform: scale(1.08) rotateZ(2deg);
+            box-shadow: 0 10px 30px rgba(51, 51, 51, 0.2);
+            opacity: 0.95;
+        }
+
+        .gallery-item:active {
+            transform: scale(1.02) rotateZ(0deg);
+        }
+
+        /* Settings Page */
+        .settings-container {
+            width: 100%;
+            max-width: 600px;
+        }
+
+        .settings-container h1 {
+            font-size: 36px;
+            margin-bottom: 40px;
+        }
+
+        .setting-item {
+            padding: 20px;
+            background: var(--bg-secondary);
+            border-radius: 10px;
+            margin-bottom: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .setting-item:hover {
+            transform: translateX(4px) scale(1.01);
+            opacity: 0.9;
+            box-shadow: 0 4px 12px rgba(51, 51, 51, 0.1);
+        }
+
+        .setting-label {
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 200px;
+                padding: 20px 0;
+            }
+
+            .nav-item {
+                padding: 12px 20px;
+                font-size: 13px;
+            }
+
+            .page {
+                padding: 40px 20px;
+            }
+
+            .home-content h1 {
+                font-size: 36px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .gallery-container {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 600px) {
+            .sidebar {
+                width: 150px;
+            }
+
+            .sidebar-title {
+                font-size: 16px;
+            }
+
+            .nav-item {
+                padding: 10px 15px;
+                font-size: 12px;
+            }
+
+            .page {
+                padding: 30px 15px;
+            }
+
+            .home-content h1 {
+                font-size: 28px;
+            }
+
+            .gallery-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent-dark);
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-title">AmForm</div>
+            </div>
+
+            <div class="nav-items">
+                <div class="nav-item active" data-page="home">
+                    <span class="nav-icon"><img src="https://cdn-icons-png.flaticon.com/512/25/25694.png" alt="Home"></span>
+                    <span>Home</span>
+                </div>
+                <div class="nav-item" data-page="form">
+                    <span class="nav-icon"><img src="https://cdn-icons-png.flaticon.com/512/1065/1065582.png" alt="Form"></span>
+                    <span>Form</span>
+                </div>
+                <div class="nav-item" data-page="stats">
+                    <span class="nav-icon"><img src="https://cdn-icons-png.flaticon.com/512/3050/3050159.png" alt="Statistics"></span>
+                    <span>Statistics</span>
+                </div>
+                <div class="nav-item" data-page="gallery">
+                    <span class="nav-icon"><img src="https://cdn-icons-png.flaticon.com/512/1534/1534926.png" alt="Gallery"></span>
+                    <span>Gallery</span>
+                </div>
+                <div class="nav-item" data-page="settings">
+                    <span class="nav-icon"><img src="https://cdn-icons-png.flaticon.com/512/2311/2311442.png" alt="Settings"></span>
+                    <span>Settings</span>
+                </div>
+            </div>
+
+            <div class="sidebar-footer">
+                <div class="toggle-container">
+                    <span class="toggle-icon">Light</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="darkModeToggle">
+                        <span class="toggle-slider"></span>
+                    </label>
+                    <span class="toggle-icon">Dark</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Home Page -->
+            <div class="page active" id="home">
+                <div class="home-content">
+                    <h1>Welcome to FormHub</h1>
+                    <p>A modern, interactive form application with a beautiful dark mode theme. Navigate through the sidebar to explore different features and submit forms with ease.</p>
+                    <button class="btn-primary" onclick="navigateTo('form')">Get Started</button>
+                </div>
+            </div>
+
+            <!-- Form Page -->
+            <div class="page" id="form">
+                <div class="form-container">
+                    <h1>User Information</h1>
+                    <form id="userForm">
+                        <div class="form-group">
+                            <label for="fullName">Full Name</label>
+                            <input type="text" id="fullName" name="fullName" placeholder="Enter your full name" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" id="email" name="email" placeholder="Enter your email" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="password">Password</label>
+                            <input type="password" id="password" name="password" placeholder="Enter your password" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="age">Age</label>
+                            <input type="number" id="age" name="age" placeholder="Enter your age" min="1" max="120">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="dob">Date of Birth</label>
+                            <input type="date" id="dob" name="dob">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="country">Country</label>
+                            <select id="country" name="country" required>
+                                <option value="">Select a country</option>
+                                <option value="usa">United States</option>
+                                <option value="uk">United Kingdom</option>
+                                <option value="canada">Canada</option>
+                                <option value="india">India</option>
+                                <option value="australia">Australia</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Gender</label>
+                            <div class="radio-group">
+                                <label class="radio-label">
+                                    <input type="radio" name="gender" value="male">
+                                    Male
+                                </label>
+                                <label class="radio-label">
+                                    <input type="radio" name="gender" value="female">
+                                    Female
+                                </label>
+                                <label class="radio-label">
+                                    <input type="radio" name="gender" value="other">
+                                    Other
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Interests</label>
+                            <div class="checkbox-group">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" name="interests" value="sports">
+                                    Sports
+                                </label>
+                                <label class="checkbox-label">
+                                    <input type="checkbox" name="interests" value="music">
+                                    Music
+                                </label>
+                                <label class="checkbox-label">
+                                    <input type="checkbox" name="interests" value="reading">
+                                    Reading
+                                </label>
+                                <label class="checkbox-label">
+                                    <input type="checkbox" name="interests" value="travel">
+                                    Travel
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="message">Message</label>
+                            <textarea id="message" name="message" placeholder="Enter your message here..."></textarea>
+                        </div>
+
+                        <div class="form-buttons">
+                            <button type="submit" class="btn-submit">Submit</button>
+                            <button type="reset" class="btn-reset">Clear</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Stats Page -->
+            <div class="page" id="stats">
+                <div style="text-align: center; margin-bottom: 50px;">
+                    <h1>Statistics</h1>
+                </div>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number">1,234</div>
+                        <div class="stat-label">Total Users</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">5,678</div>
+                        <div class="stat-label">Forms Submitted</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">98%</div>
+                        <div class="stat-label">Success Rate</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">24/7</div>
+                        <div class="stat-label">Support Available</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">2.5K+</div>
+                        <div class="stat-label">Active Sessions</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">99.9%</div>
+                        <div class="stat-label">Uptime</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Gallery Page -->
+            <div class="page" id="gallery">
+                <div style="text-align: center; margin-bottom: 50px; width: 100%;">
+                    <h1>Gallery</h1>
+                </div>
+                <div class="gallery-container">
+                    <div class="gallery-item"><img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500&h=500&fit=crop" alt="Mobile"></div>
+                    <div class="gallery-item"><img src="https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=500&h=500&fit=crop" alt="Computer"></div>
+                    <div class="gallery-item"><img src="https://images.unsplash.com/photo-1446776653964-20c1d3a81b06?w=500&h=500&fit=crop" alt="Rocket"></div>
+                    <div class="gallery-item"><img src="https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=500&h=500&fit=crop" alt="Abstract"></div>
+                    <div class="gallery-item"><img src="https://images.unsplash.com/photo-1552664730-d307ca884978?w=500&h=500&fit=crop" alt="Design"></div>
+                    <div class="gallery-item"><img src="https://images.unsplash.com/photo-1561070791-2526d30994b5?w=500&h=500&fit=crop" alt="Creative"></div>
+                    <div class="gallery-item"><img src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=500&h=500&fit=crop" alt="Technology"></div>
+                    <div class="gallery-item"><img src="https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=500&h=500&fit=crop" alt="Innovation"></div>
+                </div>
+            </div>
+
+            <!-- Settings Page -->
+            <div class="page" id="settings">
+                <div class="settings-container">
+                    <h1>Settings</h1>
+                    <div class="setting-item">
+                        <span class="setting-label">Email Notifications</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="setting-item">
+                        <span class="setting-label">Desktop Alerts</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="setting-item">
+                        <span class="setting-label">Data Analytics</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="setting-item">
+                        <span class="setting-label">Marketing Emails</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Dark Mode Toggle
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        
+        if (localStorage.getItem('darkMode') === 'true') {
+            document.body.classList.add('dark-mode');
+            darkModeToggle.checked = true;
+        }
+
+        darkModeToggle.addEventListener('change', function() {
+            document.body.classList.toggle('dark-mode');
+            localStorage.setItem('darkMode', this.checked);
+        });
+
+        // Navigation
+        function navigateTo(pageId) {
+            // Hide all pages
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+
+            // Remove active from all nav items
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+
+            // Show selected page
+            document.getElementById(pageId).classList.add('active');
+
+            // Mark nav item as active
+            document.querySelector(`[data-page="${pageId}"]`).classList.add('active');
+        }
+
+        // Nav item click listeners
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', function() {
+                navigateTo(this.dataset.page);
+            });
+        });
+
+        // Form submission
+        document.getElementById('userForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('✅ Form submitted successfully!');
+            console.log('Form data:', new FormData(this));
+            this.reset();
+        });
+    </script>
+</body>
+</html>
